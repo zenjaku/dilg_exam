@@ -2,11 +2,7 @@
 
 namespace frontend\controllers;
 
-use common\models\CityMun;
 use common\models\DataTable;
-use common\models\DataTableSearch;
-use common\models\Province;
-use GuzzleHttp\Psr7\Response;
 use Yii;
 use yii\filters\AccessControl;
 use yii\helpers\ArrayHelper;
@@ -21,6 +17,16 @@ class DataTableController extends Controller
         return array_merge(
             parent::behaviors(),
             [
+                'access' => [
+                    'class' => AccessControl::class,
+                    'rules' => [
+                        [
+                            'actions' => ['view', 'update', 'create', 'delete', 'provinces', 'cities'],
+                            'allow' => true,
+                            'roles' => ['@'],
+                        ],
+                    ],
+                ],
                 'verbs' => [
                     'class' => VerbFilter::class,
                     'actions' => [
@@ -30,17 +36,6 @@ class DataTableController extends Controller
             ]
         );
     }
-    // public function actionIndex()
-    // {
-    //     $searchModel = new DataTableSearch();
-    //     $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-    //     return $this->render('index', [
-    //         'searchModel' => $searchModel,
-    //         'dataProvider' => $dataProvider,
-    //     ]);
-    // }
-
     public function actionView($id)
     {
         return $this->render('view', [

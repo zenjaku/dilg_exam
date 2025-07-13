@@ -82,17 +82,17 @@ use yii\widgets\ActiveForm;
 
         <?= Html::tag(
             'div',
-            $form->field($model, 'region_id', ['options' => ['class' => 'flex-grow-1']])
+            $form->field($model, 'region_id', ['options' => ['class' => 'flex-grow-1 w-100']])
                 ->dropDownList(
                     ['' => 'Select Region'] + $getRegions,
                     ['id' => 'region', 'class' => 'form-control']
                 )->label(false) .
-            $form->field($model, 'province_id', ['options' => ['class' => 'flex-grow-1']])
+            $form->field($model, 'province_id', ['options' => ['class' => 'flex-grow-1 w-100']])
                 ->dropDownList(
                     ['' => 'Select Province'],
                     ['id' => 'province', 'class' => 'form-control', 'disabled' => true]
                 )->label(false) .
-            $form->field($model, 'citymun_id', ['options' => ['class' => 'flex-grow-1']])
+            $form->field($model, 'citymun_id', ['options' => ['class' => 'flex-grow-1 w-100']])
                 ->dropDownList(
                     ['' => 'Select City/Municipality'],
                     ['id' => 'citymun', 'class' => 'form-control', 'disabled' => true]
@@ -115,6 +115,29 @@ $provincesUrl = Url::to(['provinces']);
 $citiesUrl = Url::to(['cities']);
 
 $js = <<<JS
+    $(document).ready(function() {
+        // limit the characters/number for contact_number field
+        $('input[name="DataTable[contact_number]"]').on('input', function() {
+            let value = $(this).val().replace(/\D/g, '');
+            
+            if (value.length > 12) {
+                value = value.substring(0, 12);
+            }
+            
+            $(this).val(value);
+        });
+
+        // limit the characters/number for age field
+        $('input[name="DataTable[age]"]').on('input', function() {
+            let value = $(this).val().replace(/\D/g, '');
+            
+            if (value.length > 3) {
+                value = value.substring(0, 3);
+            }
+            
+            $(this).val(value);
+        });
+
         $('#region').on('change', function () {
             const id = $(this).val();
             resetSelect('#province', 'Select Province');
@@ -145,7 +168,8 @@ $js = <<<JS
                 return '<option value="' + k + '">' + items[k] + '</option>';
             });
             $(sel).append(opts.join('')).prop('disabled', false);
-        }
+        } 
+    });
     JS;
 
 $this->registerJs($js);

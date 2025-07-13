@@ -70,13 +70,17 @@ class SiteController extends Controller
         $provinces = DataTable::getDbProvince();
         $citymuns = DataTable::getDbCityMun();
 
+        // chart status
+        // $statusChart = DataTable::chartStatus(clone $dataProvider->query);
+
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
             'statuses' => $statuses,
             'regions' => $regions,
             'provinces' => $provinces,
-            'citymuns' => $citymuns
+            'citymuns' => $citymuns,
+            // 'statusChart' => $statusChart
         ]);
     }
 

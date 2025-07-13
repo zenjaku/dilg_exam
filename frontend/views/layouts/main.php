@@ -9,12 +9,17 @@ use yii\bootstrap5\Breadcrumbs;
 use yii\bootstrap5\Html;
 use yii\bootstrap5\Nav;
 use yii\bootstrap5\NavBar;
+use yii\web\JqueryAsset;
+use yii\web\View;
 
 AppAsset::register($this);
 $this->registerCssFile('@web/css/site.css');
-$this->registerJsFile('@web/js/script.js', ['depends' => [\yii\web\JqueryAsset::class]]);
-$this->registerJsFile('https://kit.fontawesome.com/e81967d7b9.js', ['position' => \yii\web\View::POS_HEAD, 'crossorigin' => 'anonymous']);
-
+$this->registerJsFile('@web/js/script.js', ['depends' => [JqueryAsset::class]]);
+$this->registerJsFile('https://kit.fontawesome.com/e81967d7b9.js', ['position' => View::POS_HEAD, 'crossorigin' => 'anonymous']);
+// $this->registerJsFile('https://cdnjs.com/libraries/Chart.js', [
+//     'position' => View::POS_HEAD,
+//     'depends' => [JqueryAsset::class]
+// ]);
 function isActive($route)
 {
     $controller = Yii::$app->controller->id;

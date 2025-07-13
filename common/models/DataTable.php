@@ -59,7 +59,7 @@ class DataTable extends \yii\db\ActiveRecord
             'status' => 'Status',
             'street' => 'Street',
             'barangay' => 'Barangay',
-            'zipcode' => 'Zipcode',
+            'zipcode' => 'Zip Code',
             'region_id' => 'Region ID',
             'province_id' => 'Province ID',
             'citymun_id' => 'Citymun ID',

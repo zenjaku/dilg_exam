@@ -7,9 +7,14 @@ use yii\helpers\Html;
 use yii\widgets\Pjax;
 use yii\grid\GridView;
 use yii\helpers\Url;
+
+$this->registerJsVar('statusChartUrl', Url::to(['site/status-chart']));
+$this->registerJsFile('@web/js/chart.js', [
+    'depends' => \yii\web\JqueryAsset::class,
+]);
 ?>
 <div class="site-index">
-    <div class="row mb-3 justify-content-between">
+    <div class="row my-3 justify-content-between">
         <div class="col-md-5">
             <?= Html::tag(
                 'div',
@@ -20,16 +25,16 @@ use yii\helpers\Url;
                 ]) . Html::dropDownList(
                         'DataTableSearch[status]',
                         $searchModel->status,
-                        ['' => 'All Statuses'] + $statuses, // Add empty option
+                        ['' => 'All Statuses'] + $statuses,
                         ['id' => 'status-filter', 'class' => 'form-control']
-                ),
-                ['class' => 'd-flex gap-2']
+                    ),
+                ['class' => 'd-flex flex-lg-row flex-column gap-2 mb-2']
 
             )
                 ?>
         </div>
 
-        <div class="col-md-6 col-sm-12">
+        <div class="col-md-6">
             <?= Html::tag(
                 'div',
                 Html::dropDownList(
@@ -50,44 +55,27 @@ use yii\helpers\Url;
                     ['' => 'All City/Municipalities'] + $citymuns,
                     ['id' => 'citymun-filter', 'class' => 'form-control']
                 ),
-                ['class' => 'd-flex gap-2']
+                ['class' => 'd-flex flex-lg-row flex-column gap-2']
             ) ?>
 
         </div>
-        <!-- 
-        <div class="col-md-3">
-            <?= Html::dropDownList(
-                'DataTableSearch[region]',
-                $searchModel->region,
-                ['' => 'All Regions'] + $regions,
-                ['id' => 'region-filter', 'class' => 'form-control']
-            ) ?>
-        </div>
-
-        <div class="col-md-3">
-            <?= Html::dropDownList(
-                'DataTableSearch[province]',
-                $searchModel->province,
-                ['' => 'All Provinces'] + $provinces,
-                ['id' => 'province-filter', 'class' => 'form-control']
-            ) ?>
-        </div>
-
-        <div class="col-md-3">
-            <?= Html::dropDownList(
-                'DataTableSearch[citymun]',
-                $searchModel->citymun,
-                ['' => 'All City/Municipalities'] + $citymuns,
-                ['id' => 'citymun-filter', 'class' => 'form-control']
-            ) ?>
-        </div> -->
     </div>
 
-    <?php Pjax::begin(['id' => 'post-grid']); ?>
+    <?php Pjax::begin([
+        'id' => 'post-grid',
+        'clientOptions' => [
+            'container' => '#post-grid',
+        ],
+    ]); ?>
 
     <div class="table-responsive">
         <?= GridView::widget([
             'dataProvider' => $dataProvider,
+            'emptyText' => '<div class="text-center p-4">No data found</div>',
+            'emptyTextOptions' => ['class' => 'text-center p-4'],
+            'options' => [
+                'id' => 'grid-table',
+            ],
             'columns' => [
                 'id',
                 [
@@ -97,8 +85,8 @@ use yii\helpers\Url;
                         'class' => 'text-nowrap'
                     ],
                     'value' => function ($model) {
-                    return "$model->first_name $model->last_name";
-                },
+                            return "$model->first_name $model->last_name";
+                        },
                 ],
                 'age',
                 'contact_number',
@@ -109,25 +97,25 @@ use yii\helpers\Url;
                         'class' => 'address'
                     ],
                     'value' => function ($model) {
-                    $address = [];
-                    if ($model->street && $model->barangay)
-                        $address[] = trim("$model->street  $model->barangay");
+                            $address = [];
+                            if ($model->street && $model->barangay)
+                                $address[] = trim("$model->street  $model->barangay");
 
-                    if ($model->citymun_id && $model->province_id) {
-                        $citymunName = $model->getCorrectCitymunName();
-                        if ($citymunName) {
-                            $address[] = $citymunName;
+                            if ($model->citymun_id && $model->province_id) {
+                                $citymunName = $model->getCorrectCitymunName();
+                                if ($citymunName) {
+                                    $address[] = $citymunName;
+                                }
+                            }
+
+                            if ($model->province_id)
+                                $address[] = $model->province->province_m;
+
+                            if ($model->region_id)
+                                $address[] = $model->region->region_m;
+
+                            return implode(', ', $address);
                         }
-                    }
-
-                    if ($model->province_id)
-                        $address[] = $model->province->province_m;
-
-                    if ($model->region_id)
-                        $address[] = $model->region->region_m;
-
-                    return implode(', ', $address);
-                }
                 ],
                 [
                     'attribute' => 'status',
@@ -135,9 +123,9 @@ use yii\helpers\Url;
                         'class' => 'text-nowrap'
                     ],
                     'value' => function ($model) {
-                    $statusLabel = $model->getAllStatuses();
-                    return $statusLabel[$model->status] ?? $model->status;
-                }
+                            $statusLabel = $model->getAllStatuses();
+                            return $statusLabel[$model->status] ?? $model->status;
+                        }
                 ],
                 [
                     'attribute' => 'created_at',
@@ -162,7 +150,6 @@ use yii\helpers\Url;
     <?php Pjax::end(); ?>
 
     <?php
-    /* ---------- Tiny bit of jQuery ---------- */
     $reloadUrl = Url::to(['/']);
     $js = <<<JS
             let typingTimer;
@@ -177,7 +164,6 @@ use yii\helpers\Url;
             $('#citymun-filter').on('change', pjaxReload);
 
             function pjaxReload() {
-                $('#post-grid').append('<div class="pjax-loading">Loading...</div>');
 
                 const searchVal   = $('#search-box').val().trim();
                 const statusVal   = $('#status-filter').val();
@@ -202,6 +188,28 @@ use yii\helpers\Url;
                     type: 'GET'
                 });
             }
+
+            $(document).on('pjax:send', function(event, xhr, options) {
+                var \$gridTable = $('#grid-table');
+                var \$tbody = \$gridTable.find('tbody');
+                
+                \$tbody.find('.pjax-loading-row').remove();
+                
+                var colCount = \$gridTable.find('thead th').length;
+                \$tbody.append(
+                    '<tr class="pjax-loading-row">' +
+                    '<td colspan="' + colCount + '" class="text-center p-4">' +
+                    '<div class="spinner-border text-primary" role="status">' +
+                    '<span class="visually-hidden">Loading...</span>' +
+                    '</div>' +
+                    '</td>' +
+                    '</tr>'
+                );
+            });
+
+            $(document).on('pjax:complete', function() {
+                $('#grid-table tbody').find('.pjax-loading-row').remove();
+            });
         JS;
 
     $this->registerJs($js);
